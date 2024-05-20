@@ -48,8 +48,8 @@ export class RegistrationComponent implements OnInit, OnDestroy {
           '',
           Validators.compose([
             Validators.required,
-            Validators.minLength(3),
-            Validators.maxLength(100),
+            Validators.minLength(10),
+            Validators.maxLength(25),
           ]),
         ],
         email: [
@@ -57,24 +57,23 @@ export class RegistrationComponent implements OnInit, OnDestroy {
           Validators.compose([
             Validators.required,
             Validators.email,
-            Validators.minLength(3),
-            Validators.maxLength(320), // https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
+            Validators.maxLength(40), // https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
           ]),
         ],
         password: [
           '',
           Validators.compose([
             Validators.required,
-            Validators.minLength(3),
-            Validators.maxLength(100),
+            Validators.minLength(8),
+            Validators.maxLength(15),
           ]),
         ],
         cPassword: [
           '',
           Validators.compose([
             Validators.required,
-            Validators.minLength(3),
-            Validators.maxLength(100),
+            Validators.minLength(8),
+            Validators.maxLength(15),
           ]),
         ],
         agree: [false, Validators.compose([Validators.required])],
@@ -93,17 +92,17 @@ export class RegistrationComponent implements OnInit, OnDestroy {
     });
     const newUser = new UserModel();
     newUser.setUser(result);
-    // const registrationSubscr = this.authService
-    //   .registration(newUser)
-    //   .pipe(first())
-    //   .subscribe((user: UserModel) => {
-    //     if (user) {
-    //       this.router.navigate(['/']);
-    //     } else {
-    //       this.hasError = true;
-    //     }
-    //   });
-    // this.unsubscribe.push(registrationSubscr);
+    const registrationSubscr = this.authService
+      .registration(newUser)
+      .pipe(first())
+      .subscribe((user: UserModel) => {
+        if (user) {
+          this.router.navigate(['/']);
+        } else {
+          this.hasError = true;
+        }
+      });
+    this.unsubscribe.push(registrationSubscr);
   }
 
   ngOnDestroy() {
