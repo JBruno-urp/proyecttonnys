@@ -29,12 +29,12 @@ export default {
             let product = await models.Product.create(data);
 
             res.status(200).json({
-                message: "EL PRODUCTO SE REGISTRO CON EXITO"
+                message: "EL PRODUCTO SE REGISTRÓ CON ÉXITO"
             });
 
         } catch (error) {
             res.status(500).send({
-                message: "COURRIO UN PROBLEMA"
+                message: "OCURRIÓ UN PROBLEMA"
             });
         }
     },
@@ -63,55 +63,49 @@ export default {
             await models.Product.findByIdAndUpdate({_id:data._id},data);
 
             res.status(200).json({
-                message: "EL PRODUCTO SE REGISTRO SE ACTUALIZO CON EXITO"
+                message: "EL PRODUCTO SE REGISTRO SE ACTUALIZÓ CON EXITO"
             });
 
         } catch (error) {
             res.status(500).send({
-                message: "COURRIO UN PROBLEMA"
+                message: "OCURRIÓ UN PROBLEMA"
             });
         }
     },
-    list:async(req,res) => {
-        try {
-            var filter = [];
-            if(req.query.search){
-                filter.push(
-                    {"title": new RegExp(req.query.search,'i')},
-                );
-            }
-            if(req.query.categorie){
-                filter.push(
-                    {"categorie": req.query.categorie}
-                );
-            }
-            let products = await models.Product.find({
-                $and:filter,
-            }).populate('categorie')
-            products = products.map(product => {
-                return resources.Product.product_list(product);
-            })
+    list: async(req,res) => {
+		try {
+			var search = req.query.search;
+			var categorie = req.query.categorie;
+			let products = await models.Product.find({
+				$or: [
+					{"title": new RegExp(search,'i')},
+					{"categorie": categorie}
+				],
+			}).populate('categorie')
+			products = products.map(product => {
+				return resources.Product.product_list(product);
+			})
 
-            res.status(200).json({
-                products: products,
-            })
-        } catch (error) {
-            res.status(500).send({
-                message: "COURRIO UN PROBLEMA"
-            });
-        }
-    },
+			res.status(200).json({
+				products: products,
+			})
+		} catch (error) {
+			res.status(500).send({
+				message: "OCURRIÓ UN PROBLEMA"
+			});
+		}
+	},
     remove:async(req,res) => {
         try {
             let _id = req.query._id;
             await models.Product.findByIdAndDelete({_id: _id});
 
             res.status(200).json({
-                message: "EL PRODUCTO SE ELIMINO CORRECTAMENTE"
+                message: "EL PRODUCTO SE ELIMINÓ CORRECTAMENTE"
             });
         } catch (error) {
             res.status(500).send({
-                message: "COURRIO UN PROBLEMA"
+                message: "OCURRIÓ UN PROBLEMA"
             });
         }
     },
@@ -130,28 +124,12 @@ export default {
             })
         } catch (error) {
             res.status(500).send({
-                message: "OCURRIO UN PROBLEMA"
+                message: "OCURRIÓ UN PROBLEMA"
             });
             console.log(error);
         }
     },
-    show: async(req,res) => {
-        try {
-            var product_id = req.params.id;
-            let PRODUCT = await models.Product.findById({_id: product_id}).populate("categorie");
-
-            let VARIEDADES = await models.Variedad.find({product: product_id});
-            res.status(200).json({
-                product: resources.Product.product_list(PRODUCT,VARIEDADES),
-            })
-        } catch (error) {
-            res.status(500).send({
-                message: "OCURRIO UN PROBLEMA"
-            });
-            console.log(error);
-        }
-    },
-    register_imagen:async(req,res) => {
+	register_imagen:async(req,res) => {
         try {
             var img_path = req.files.imagen.path;
             var name = img_path.split('\\');
@@ -166,19 +144,20 @@ export default {
                 }
             })
             res.status(200).json({
-                message: "LA IMAGEN SE SUBIO PERFECTAMENTE",
+                message: "LA IMAGEN SE SUBIÓ PERFECTAMENTE",
                 imagen: {
-                    imagen: process.env.URL_BACKEND+'/api/products/uploads/product/'+imagen_name,
+                    imagen: imagen_name,
+					imagen_path: 'http://localhost:3000'+'/uploads/product/'+imagen_name,
                     _id: req.body.__id
                 }
             })
         } catch (error) {
             res.status(500).send({
-                message: "OCURRIO UN PROBLEMA"
+                message: "OCURRIÓ UN PROBLEMA"
             });
         }
     },
-    remove_imagen:async(req,res) => {
+	remove_imagen:async(req,res) => {
         try {
             await models.Product.findByIdAndUpdate({_id: req.body._id},{
                 $pull: {
@@ -188,11 +167,11 @@ export default {
                 }
             })
             res.status(200).json({
-                message: "LA IMAGEN SE ELIMINO PERFECTAMENTE",
+                message: "LA IMAGEN SE ELIMINÓ PERFECTAMENTE",
             })
         } catch (error) {
             res.status(500).send({
-                message: "OCURRIO UN PROBLEMA"
+                message: "OCURRIÓ UN PROBLEMA"
             });
         }
     },
